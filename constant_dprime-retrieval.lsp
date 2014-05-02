@@ -208,6 +208,8 @@
 	+retrieval>
 		isa		prev-action
 		outcome	red
+	+temporal>
+		isa		time
 )	
 
 (p attend-to-respond
@@ -237,28 +239,11 @@
 
 )	
 
-;if it's at the tracking stage and the box is black the mouse should be on the box
-;(p move-mouse-to-drill
-	; =goal>
-		; isa		goal
-		; state	tracking
-	; =visual>
-		; isa		text
-		; color	black
-	; ?manual>
-		; state	free
-	; ==>
-	; =goal>
-		; +manual>
-			; isa		move-cursor
-			; location	=visual-location	
-; )
-
 ;wait for alarm - and move attention to button if something is heard
 (p heard-alarm
 	=goal>
 		isa 	goal
-		state	waiting
+		state	tracking
 	=aural-location>
 		isa      audio-event
     ?aural>
@@ -277,6 +262,10 @@
 	+visual>
 		isa		move-attention
 		screen-pos	=visual-location
+	+imaginal>
+		isa		prev-action
+		action	wait
+	-temporal>
 	
 )
 
@@ -301,6 +290,9 @@
 	=retrieval>
 		isa		prev-action
 		action	switch
+	=temporal>
+		isa		time
+	>=	ticks	40
 	==>
 	=goal>
 		state	switching
@@ -310,12 +302,14 @@
 	+imaginal>
 		isa		prev-action
 		action	switch
+	-temporal>
 )
 ;(spp switch-with-no-sound :u 0)
 
 ;the model decies to wait for an alarm 
 ;only if the action it has previously remembered was to wait
-;it generates a new instance of a previous action
+;it then resets the timer and waits again for a period of time. It starts a new retrieval in order to make a new decision about whether or not to wait. 
+;this has the potential side effect of over-emphasizing the activation of the waiting chunks. 
  (p wait-for-alarm
 	=goal>
 		isa 	goal
@@ -333,14 +327,16 @@
 	=retrieval>
 		isa		prev-action
 		action	wait
+	=temporal>
+		isa		time
+	>=	ticks	40
 	==>
 	=goal>
-		state	waiting
 	=visual>
 	=visual-location>
-	+imaginal>
+	+retrieval>
 		isa		prev-action
-		action	wait
+		outcome red
 )
 ;(spp wait-for-alarm :u 5)
 ;(spp wait-for-alarm :reward 2.2)
