@@ -9,6 +9,8 @@
 (defvar *sound-played* 0)
 (defvar *switch-to-sound* 0)
 (defvar *switch-to-nosound* 0)
+(defvar *ans* 0)
+(defvar *bll* 0)
 
 ;
 
@@ -133,19 +135,61 @@
 )
 
 (defun display-results (trials FPR TPR)
-	(format t "~%Trials: ~S TPR: ~S FPR: ~S ~%" trials TPR FPR)
-	(format t "Critical Trials: ~S ~%" *number-of-CT*)
-	(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
-	(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
+	;(format t "~%Trials: ~S TPR: ~S FPR: ~S ~%" trials TPR FPR)
+	;(format t "Critical Trials: ~S ~%" *number-of-CT*)
+	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
+	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
+	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
+	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
 )
+
+(defun param-explore (TPR FPR participants-per-condition)
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Instance_Learning.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
+	;and named as the output file at the specified location
+	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
+	
+	(let ((ans-list '(.5))
+        ;(alpha-list '(.0001))
+        (bll '(2 4 6 8))
+		;(blue-reward '(-2 -4 -6 -8))
+		)
+
+        ;(fname nil))
+;    (setq fname "~/Documents/models/vigilance/outputfiles/outputfile.8.25.11.csv")
+    ;(setq fname (string (concat "~/Documents/models.from.viz/vigilance/outputfiles/outputfile." (get-universal-time) ".csv")))
+    ;(writeToFile fname (format nil "subj, Period1, Period2, Period3, Period4, Nothing, egs, ut, signal.reward, alpha~%"))
+	(dolist (*ans* ans-list)
+		(dolist (*bll* bll)
+			;(dolist (*blue_reward* blue-reward)
+				(dotimes (i participants-per-condition)
+					(reload) ;; to get global variables set properly 
+					(suppress-warnings(experiment TPR FPR :trials 150))))))
+))
 
 (clear-all)
 
 (define-model trust
 ;this model is different from the previous model in that it uses the retrieval buffer to learn the appropriate behaviour instead of using the reward system
+
 ;note that utility learning is off. :ol optimized learning
-(sgp :show-focus t :esc t :ul nil :ncnar t :egs .5 :ans 0.5 :bll 0.8 :rt -3)
+(sgp :show-focus t :esc t :ul nil :ncnar t)  
+;these parementes have to be commented out when doing param-explore runs. 
+(sgp :ans 0.5 :bll 0.8 :rt -3)
+
 (sgp :v t :trace-detail low :ult nil)
+
+;;;paremeters needed for the parameter exploration sessions
+;;These are for rewards 
+;(spp-fct (list 'box-is-red :reward *red_reward*))
+;(spp-fct (list 'box-is-blue :reward *blue_reward*))
+
+;these are for subsymbolic
+(sgp-fct (list
+;            :alpha *alpha*
+            :ans *ans*)
+			:bll *bll*)
+;           :ut *ut*)))
 
 ;possible chunks
 (chunk-type goal state)
@@ -163,6 +207,7 @@
 (outcomeSB isa prev-action action switch outcome blue)
 (goal isa goal state find)
 )
+
 ;attend center item
 (p find-center
 	=goal>
