@@ -145,7 +145,7 @@
 ;this model is different from the previous model in that it uses the retrieval buffer to learn the appropriate behaviour instead of using the reward system
 ;note that utility learning is off. :ol optimized learning
 (sgp :show-focus t :esc t :ul nil :ncnar t :egs .5 :ans 0.5 :bll 0.8 :rt -3)
-(sgp :v t :trace-detail medium :ult nil)
+(sgp :v t :trace-detail low :ult nil)
 
 ;possible chunks
 (chunk-type goal state)
@@ -337,6 +337,8 @@
 	+retrieval>
 		isa		prev-action
 		outcome red
+	+temporal>
+		isa 	time
 )
 ;(spp wait-for-alarm :u 5)
 ;(spp wait-for-alarm :reward 2.2)
