@@ -16,8 +16,8 @@
 
 (defun create-windows ()
 ; ; ; ; make a window1
-	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500))
-	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500))
+	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible nil))
+	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500 :visible nil))
 	; draw 2 buttons one in the center with no action and one in the corner that switches to second window
 	(add-button-to-exp-window :window *drill-window* :action #'switch-to-cart-window)
 	 (add-text-to-exp-window :window *drill-window* :text "moving box" :x 250 :y 250)
@@ -31,9 +31,10 @@
 ; ; ;this function selects which window the model should be interacting with
 ; ; ;it is used by the corner buttons
 (defun switch-to-cart-window (button)
+	(ignore button)
 	(select-exp-window *cart-window*)
 	(install-device *cart-window*)
-	(format t "		switch to cart clicked ~%")
+	;(format t "		switch to cart clicked ~%")
 	(proc-display :clear t)
 	;count the type of switch behavior
 	(cond
@@ -47,7 +48,7 @@
 	(select-exp-window *drill-window*)
 	(install-device *drill-window*)
 	(proc-display :clear t)
-	(format t "		switch to drill clicked ~%")
+	;(format t "		switch to drill clicked ~%")
 )
 ;Call filler function when the spacebar is pressed
 (defmethod rpm-window-key-event-handler ((win rpm-window) key)
@@ -65,7 +66,7 @@
 	
 	;(proc-display :clear t) no need to process the display for fillers
 	(setf *trial* nil)
-	(format t "filler ~S ~%" *trial*) ;testing string to make sure the filler runs and what the trial variable is at the time. 
+	;(format t "filler ~S ~%" *trial*) ;testing string to make sure the filler runs and what the trial variable is at the time. 
 )
 
 ;decision on trial type
@@ -76,13 +77,15 @@
 	(cond ((and (equal *trial* "critical")(< (act-r-random 100) TPR)) 
 									(new-tone-sound 2000 .5 )
 									(setf *sound-played* 1)
-									(format t "sound played-"))
+									;(format t "sound played-")
+									)
 			((and(equal *trial* "non-crit") (< (act-r-random 100) FPR))
 									(new-tone-sound 1000 .5 )
 									(setf *sound-played* 1)
-									(format t "sound played-"))
+									;(format t "sound played-")
+									)
 	)
-	(format t "trial computed ~S ~%" *trial*)
+	;(format t "trial computed ~S ~%" *trial*)
 *trial*	
 )
 ;this function set a new trial text on the second window, 
@@ -177,7 +180,7 @@
 ;these parementes have to be commented out when doing param-explore runs. 
 (sgp :bll 0.5)
 
-(sgp :v t :trace-detail low :ult nil)
+(sgp :v nil :trace-detail low :ult nil)
 
 ;;;paremeters needed for the parameter exploration sessions
 ;;These are for rewards 
