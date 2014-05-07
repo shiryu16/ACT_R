@@ -9,7 +9,7 @@
 (defvar *sound-played* 0)
 (defvar *switch-to-sound* 0)
 (defvar *switch-to-nosound* 0)
-(defvar *ans* 0)
+(defvar *ans* .2)
 (defvar *bll* 0)
 
 ;
@@ -140,7 +140,7 @@
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
 	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
-	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
+	(format t "~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans*)
 )
 
 (defun param-explore (TPR FPR participants-per-condition)
@@ -149,9 +149,9 @@
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((ans-list '(.5))
+	(let ((ans-list '(.2 .3 .4 .5 .6))
         ;(alpha-list '(.0001))
-        (bll '(2 4 6 8))
+        ;(bll '(2 4 6 8))
 		;(blue-reward '(-2 -4 -6 -8))
 		)
 
@@ -160,11 +160,11 @@
     ;(setq fname (string (concat "~/Documents/models.from.viz/vigilance/outputfiles/outputfile." (get-universal-time) ".csv")))
     ;(writeToFile fname (format nil "subj, Period1, Period2, Period3, Period4, Nothing, egs, ut, signal.reward, alpha~%"))
 	(dolist (*ans* ans-list)
-		(dolist (*bll* bll)
+		;(dolist (*bll* bll)
 			;(dolist (*blue_reward* blue-reward)
 				(dotimes (i participants-per-condition)
 					(reload) ;; to get global variables set properly 
-					(suppress-warnings(experiment TPR FPR :trials 150))))))
+					(suppress-warnings(experiment TPR FPR :trials 150)))));))
 ))
 
 (clear-all)
@@ -175,7 +175,7 @@
 ;note that utility learning is off. :ol optimized learning
 (sgp :show-focus t :esc t :ul nil :ncnar t)  
 ;these parementes have to be commented out when doing param-explore runs. 
-(sgp :ans 0.5 :bll 0.8 :rt -3)
+(sgp :bll 0.5)
 
 (sgp :v t :trace-detail low :ult nil)
 
@@ -188,8 +188,9 @@
 (sgp-fct (list
 ;            :alpha *alpha*
             :ans *ans*)
-			:bll *bll*)
-;           :ut *ut*)))
+;			:bll *bll*)
+;           :ut *ut*))
+)
 
 ;possible chunks
 (chunk-type goal state)
