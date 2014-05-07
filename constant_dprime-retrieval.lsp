@@ -31,7 +31,8 @@
 ; ; ;this function selects which window the model should be interacting with
 ; ; ;it is used by the corner buttons
 (defun switch-to-cart-window (button)
-	;(ignore button)
+	(declare (ignore button))
+	
 	(select-exp-window *cart-window*)
 	(install-device *cart-window*)
 	;(format t "		switch to cart clicked ~%")
@@ -44,6 +45,8 @@
 )
 
 (defun switch-to-drill-window (button)
+	(declare (ignore button))
+	
 	(setf *sound-played* 0)
 	(select-exp-window *drill-window*)
 	(install-device *drill-window*)
