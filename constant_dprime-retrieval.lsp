@@ -140,7 +140,7 @@
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
 	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
-	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
+	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans* *bll*)
 )
 
 (defun param-explore (TPR FPR participants-per-condition)
