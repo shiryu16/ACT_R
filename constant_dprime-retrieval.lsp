@@ -9,15 +9,15 @@
 (defvar *sound-played* 0)
 (defvar *switch-to-sound* 0)
 (defvar *switch-to-nosound* 0)
-(defvar *ans* 0)
+(defvar *ans* .2)
 (defvar *bll* 0)
 
 ;
 
 (defun create-windows ()
 ; ; ; ; make a window1
-	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500))
-	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500))
+	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible nil))
+	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500 :visible nil))
 	; draw 2 buttons one in the center with no action and one in the corner that switches to second window
 	(add-button-to-exp-window :window *drill-window* :action #'switch-to-cart-window)
 	 (add-text-to-exp-window :window *drill-window* :text "moving box" :x 250 :y 250)
@@ -31,9 +31,11 @@
 ; ; ;this function selects which window the model should be interacting with
 ; ; ;it is used by the corner buttons
 (defun switch-to-cart-window (button)
+	(declare (ignore button))
+	
 	(select-exp-window *cart-window*)
 	(install-device *cart-window*)
-	(format t "		switch to cart clicked ~%")
+	;(format t "		switch to cart clicked ~%")
 	(proc-display :clear t)
 	;count the type of switch behavior
 	(cond
@@ -43,11 +45,13 @@
 )
 
 (defun switch-to-drill-window (button)
+	(declare (ignore button))
+	
 	(setf *sound-played* 0)
 	(select-exp-window *drill-window*)
 	(install-device *drill-window*)
 	(proc-display :clear t)
-	(format t "		switch to drill clicked ~%")
+	;(format t "		switch to drill clicked ~%")
 )
 ;Call filler function when the spacebar is pressed
 (defmethod rpm-window-key-event-handler ((win rpm-window) key)
@@ -65,7 +69,7 @@
 	
 	;(proc-display :clear t) no need to process the display for fillers
 	(setf *trial* nil)
-	(format t "filler ~S ~%" *trial*) ;testing string to make sure the filler runs and what the trial variable is at the time. 
+	;(format t "filler ~S ~%" *trial*) ;testing string to make sure the filler runs and what the trial variable is at the time. 
 )
 
 ;decision on trial type
@@ -76,13 +80,15 @@
 	(cond ((and (equal *trial* "critical")(< (act-r-random 100) TPR)) 
 									(new-tone-sound 2000 .5 )
 									(setf *sound-played* 1)
-									(format t "sound played-"))
+									;(format t "sound played-")
+									)
 			((and(equal *trial* "non-crit") (< (act-r-random 100) FPR))
 									(new-tone-sound 1000 .5 )
 									(setf *sound-played* 1)
-									(format t "sound played-"))
+									;(format t "sound played-")
+									)
 	)
-	(format t "trial computed ~S ~%" *trial*)
+	;(format t "trial computed ~S ~%" *trial*)
 *trial*	
 )
 ;this function set a new trial text on the second window, 
@@ -140,7 +146,11 @@
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
 	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
+<<<<<<< HEAD
 	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans* *bll*)
+=======
+	(format t "~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans*)
+>>>>>>> d6714429f95800980444c1cc8d034e009b114653
 )
 
 (defun param-explore (TPR FPR participants-per-condition)
@@ -149,9 +159,9 @@
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((ans-list '(.5))
+	(let ((ans-list '(.2 .3 .4 .5 .6))
         ;(alpha-list '(.0001))
-        (bll '(2 4 6 8))
+        ;(bll '(2 4 6 8))
 		;(blue-reward '(-2 -4 -6 -8))
 		)
 
@@ -160,11 +170,11 @@
     ;(setq fname (string (concat "~/Documents/models.from.viz/vigilance/outputfiles/outputfile." (get-universal-time) ".csv")))
     ;(writeToFile fname (format nil "subj, Period1, Period2, Period3, Period4, Nothing, egs, ut, signal.reward, alpha~%"))
 	(dolist (*ans* ans-list)
-		(dolist (*bll* bll)
+		;(dolist (*bll* bll)
 			;(dolist (*blue_reward* blue-reward)
 				(dotimes (i participants-per-condition)
 					(reload) ;; to get global variables set properly 
-					(suppress-warnings(experiment TPR FPR :trials 150))))))
+					(suppress-warnings(experiment TPR FPR :trials 150)))));))
 ))
 
 (clear-all)
@@ -175,9 +185,9 @@
 ;note that utility learning is off. :ol optimized learning
 (sgp :show-focus t :esc t :ul nil :ncnar t)  
 ;these parementes have to be commented out when doing param-explore runs. 
-(sgp :ans 0.5 :bll 0.8 :rt -3)
+(sgp :bll 0.5)
 
-(sgp :v t :trace-detail low :ult nil)
+(sgp :v nil :trace-detail low :ult nil)
 
 ;;;paremeters needed for the parameter exploration sessions
 ;;These are for rewards 
@@ -188,8 +198,9 @@
 (sgp-fct (list
 ;            :alpha *alpha*
             :ans *ans*)
-			:bll *bll*)
-;           :ut *ut*)))
+;			:bll *bll*)
+;           :ut *ut*))
+)
 
 ;possible chunks
 (chunk-type goal state)
