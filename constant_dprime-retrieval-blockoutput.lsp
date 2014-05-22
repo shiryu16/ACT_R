@@ -10,7 +10,9 @@
 (defvar *switch-to-sound* 0)
 (defvar *switch-to-nosound* 0)
 (defvar *ans* .2)
-(defvar *bll* 0)
+(defvar *TPR* nil)
+(defvar *FPR* nil)
+;(defvar *bll* 0)
 
 ;
 
@@ -125,6 +127,8 @@
 ;to switch to the cart. The keyword :trials is how many trials to run. 
 (defun experiment (TPR FPR &key (trials 10))
 	(reset)
+	(setf *TPR* TPR)
+	(setf *FPR* FPR)
 	(reset-environment)
 	(create-windows)
 	;set everything to the the starting position
@@ -137,22 +141,22 @@
 		(new-trial TPR FPR) ;(proc-display) inside the function
 		(run-full-time (+ 7 (act-r-random 5))) ;run trial for 7-12 seconds
 	)
-	(display-results trials FPR TPR)	
+	;(display-results trials FPR TPR)	
 )
 
-(defun display-results (trials FPR TPR)
+(defun display-results (outcome action FPR TPR)
 	;(format t "~%Trials: ~S TPR: ~S FPR: ~S ~%" trials TPR FPR)
 	;(format t "Critical Trials: ~S ~%" *number-of-CT*)
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
 	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
-	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans* *bll*)
-	(format t "~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans*)
+	;(format t "~S,~S,~S,~S,~S,~S,~S,~S,~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans* *bll*)
+	(format t "~S,~S,~S,~S,~S~%" outcome action TPR FPR *ans*)
 
 )
 
 (defun param-explore (TPR FPR participants-per-condition)
-	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Instance_Learning.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Instance_Learning_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
 	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
@@ -451,6 +455,7 @@
 		kind	oval
 	=imaginal>
 		isa		prev-action
+		action =action
 	==>
 	=goal>
 		state	switching
@@ -463,6 +468,8 @@
 	=imaginal>
 		outcome red
 	-imaginal>
+	!eval! (display-results "red" =action *TPR* *FPR*)
+	
 )
 ;(spp box-is-red :reward 11)
 ;just switch back if it's blue
@@ -480,6 +487,7 @@
 	=imaginal>
 		isa		prev-action
 		action 	wait
+		action =action
 	?manual>
 		state	free
 	==>
@@ -492,6 +500,7 @@
 		action	switch
 		outcome	red
 	-imaginal>
+	!eval! (display-results "blue" =action *TPR* *FPR*)
 )
 (p switched-and-blue
 	=goal>
@@ -506,6 +515,7 @@
 	=imaginal>
 		isa		prev-action
 		action 	switch
+		action =action
 	?manual>
 		state	free
 	==>
@@ -518,6 +528,7 @@
 		action	wait
 		outcome	red
 	-imaginal>
+	!eval! (display-results "blue" =action *TPR* *FPR*)
 )
 ;(spp box-is-blue :reward 0)
 
