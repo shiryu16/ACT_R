@@ -151,7 +151,7 @@
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
 	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
 	;(format t "~S,~S,~S,~S,~S,~S,~S,~S,~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *ans* *bll*)
-	(format t "~S,~S,~S,~S,~S~%" outcome action TPR FPR *ans*)
+	(format t "~S,~S,~S,~S,~S,~S~%" outcome action TPR FPR *ans* (mp-time))
 
 )
 
