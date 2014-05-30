@@ -11,6 +11,9 @@
 (defvar *egs* 1)
 (defvar *red_reward* 1)
 (defvar *blue_reward* 1)
+(defvar *TPR* nil)
+(defvar *FPR* nil)
+(defvar *action* nil)
 
 
 (defun create-windows ()
@@ -121,6 +124,8 @@
 ;to switch to the cart. The keyword :trials is how many trials to run. 
 (defun experiment (TPR FPR &key (trials 10))
 	(reset)
+	(setf *TPR* TPR)
+	(setf *FPR* FPR)
 	(reset-environment)
 	(create-windows)
 	;set everything to the the starting position
@@ -133,24 +138,28 @@
 		(new-trial TPR FPR) ;(proc-display) inside the function
 		(run-full-time (+ 7 (act-r-random 5))) ;run trial for 7-12 seconds
 	)
-	(display-results trials FPR TPR)	
+	;(display-results trials FPR TPR)	
 )
 
 ;this displays the results to standard out. An alternate version is implemented for when testing and sending to file in order to write to a csv. 
-(defun display-results (trials FPR TPR)
+(defun display-results (outcome action FPR TPR)
 	;(format t "~%Trials: ~S TPR: ~S FPR: ~S ~%" trials TPR FPR)
 	;(format t "Critical Trials: ~S ~%" *number-of-CT*)
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
-	;this next function writes so that the variables are comma separated and go into a csv with labeled header row
-	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
-	
+	;this next function writes so that the variables are comma separated and go into a preexisting csv with labeled header row
+	;(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
+	(format t "~S,~S,~S,~S,~S,~S,~S,~S~%" outcome action TPR FPR *egs* *red_reward* *blue_reward* (mp-time))
+)
+
+(defun set-action (action)
+	(setf *action* action)
 )
 
 (clear-all)
 
 (defun param-explore (TPR FPR participants-per-condition)
-	(with-open-file (*standard-output* "H:/output3.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Utility_Learning_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
 	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
@@ -336,6 +345,7 @@
 		isa		move-attention
 		screen-pos	=visual-location
 	-temporal>
+	!eval! (set-action "SWITCH")
 )
 (spp switch-with-no-sound :u 0)
 
@@ -364,6 +374,7 @@
 	=visual-location>
 	+temporal>
 		isa		time
+	!eval! (set-action "WAIT")
 )
 (spp wait-for-alarm :u 2)
 (spp wait-for-alarm :reward 1)
@@ -425,7 +436,9 @@
 		key		"space"
 	+visual>
 		isa		move-attention
-		screen-pos	=visual-location)
+		screen-pos	=visual-location
+	!eval! (display-results "red" *action* *TPR* *FPR*)
+)
 ;(spp box-is-red :reward 4)
 ;just switch back if it's blue
 (p box-is-blue
@@ -444,7 +457,7 @@
 	+visual>
 		isa		move-attention
 		screen-pos	=visual-location
-		
+	!eval! (display-results "blue" *action* *TPR* *FPR*)
 )
 ;(spp box-is-blue :reward -4)
 
