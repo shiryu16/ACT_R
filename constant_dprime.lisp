@@ -316,6 +316,7 @@
 	+visual>
 		isa		move-attention
 		screen-pos	=visual-location
+		!eval! (set-action "WAIT")
 )
 
 ;move attention to the button even though no alarm has been heard
@@ -374,7 +375,6 @@
 	=visual-location>
 	+temporal>
 		isa		time
-	!eval! (set-action "WAIT")
 )
 (spp wait-for-alarm :u 2)
 (spp wait-for-alarm :reward 1)
