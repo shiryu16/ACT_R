@@ -142,7 +142,7 @@
 )
 
 ;this displays the results to standard out. An alternate version is implemented for when testing and sending to file in order to write to a csv. 
-(defun display-results (outcome action FPR TPR)
+(defun display-results (outcome action TPR FPR)
 	;(format t "~%Trials: ~S TPR: ~S FPR: ~S ~%" trials TPR FPR)
 	;(format t "Critical Trials: ~S ~%" *number-of-CT*)
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
