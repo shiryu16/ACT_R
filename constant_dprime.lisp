@@ -360,8 +360,8 @@
 	+temporal>
 		isa		time
 )
-(spp wait-for-alarm :u 2)
-(spp wait-for-alarm :reward 1)
+(spp wait-for-alarm :u 1)
+;(spp wait-for-alarm :reward 1)
 
 ;switch windows
 (p	move-mouse
