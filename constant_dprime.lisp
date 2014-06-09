@@ -149,7 +149,7 @@
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
 	;this next function writes so that the variables are comma separated and go into a preexisting csv with labeled header row
 	;(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
-	(format t "~S,~S,~S,~S,~S,~S,~S,~S~%" outcome action TPR FPR *egs* *red_reward* *blue_reward* (mp-time))
+	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S,~S~%" outcome action TPR FPR *egs* *red_reward* *blue_reward* (mp-time) *switch-to-sound* *switch-to-nosound* )
 )
 
 (defun set-action (action)
@@ -164,10 +164,10 @@
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((egs-list '(.4 .5 .6 .7 .8))
+	(let ((egs-list '(.4 .6 .8 .9))
         ;(alpha-list '(.0001))
-        (red-reward '(2 4 6 8 10))
-		(blue-reward '(-2 -4 -6 -8 -10)))
+        (red-reward '(4 6 8 10 12))
+		(blue-reward '(-4 -6 -8 -10 -12)))
 
         ;(fname nil))
 ;    (setq fname "~/Documents/models/vigilance/outputfiles/outputfile.8.25.11.csv")
@@ -178,7 +178,7 @@
 			(dolist (*blue_reward* blue-reward)
 				(dotimes (i participants-per-condition)
 					(reload) ;; to get global variables set properly 
-					(suppress-warnings(experiment TPR FPR :trials 150)))))))
+					(suppress-warnings(experiment TPR FPR :trials 138)))))))
 ))
 
 (define-model trust
@@ -276,22 +276,6 @@
 
 )	
 
-;if it's at the tracking stage and the box is black the mouse should be on the box
-;(p move-mouse-to-drill
-	; =goal>
-		; isa		goal
-		; state	tracking
-	; =visual>
-		; isa		text
-		; color	black
-	; ?manual>
-		; state	free
-	; ==>
-	; =goal>
-		; +manual>
-			; isa		move-cursor
-			; location	=visual-location	
-; )
 
 ;wait for alarm - and move attention to button if something is heard
 (p heard-alarm
