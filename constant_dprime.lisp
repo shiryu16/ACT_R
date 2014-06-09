@@ -164,10 +164,10 @@
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((egs-list '(.4 .6 .8 .9))
+	(let ((egs-list '(.4 .9))
         ;(alpha-list '(.0001))
-        (red-reward '(4 6 8 10 12))
-		(blue-reward '(-4 -6 -8 -10 -12)))
+        (red-reward '(4 12))
+		(blue-reward '(-4 -12)))
 
         ;(fname nil))
 ;    (setq fname "~/Documents/models/vigilance/outputfiles/outputfile.8.25.11.csv")
