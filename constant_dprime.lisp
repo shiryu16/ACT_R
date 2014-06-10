@@ -164,15 +164,10 @@
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((egs-list '(.4 .9))
-        ;(alpha-list '(.0001))
-        (red-reward '(4 12))
-		(blue-reward '(-4 -12)))
+	(let ((egs-list '(.3 .4 .5))
+        (red-reward '(1 6 14 20))
+		(blue-reward '(-1 -6 -14 -20)))
 
-        ;(fname nil))
-;    (setq fname "~/Documents/models/vigilance/outputfiles/outputfile.8.25.11.csv")
-    ;(setq fname (string (concat "~/Documents/models.from.viz/vigilance/outputfiles/outputfile." (get-universal-time) ".csv")))
-    ;(writeToFile fname (format nil "subj, Period1, Period2, Period3, Period4, Nothing, egs, ut, signal.reward, alpha~%"))
 	(dolist (*egs* egs-list)
 		(dolist (*red_reward* red-reward)
 			(dolist (*blue_reward* blue-reward)
@@ -360,7 +355,7 @@
 	+temporal>
 		isa		time
 )
-(spp wait-for-alarm :u 1)
+(spp wait-for-alarm :u 2)
 ;(spp wait-for-alarm :reward 1)
 
 ;switch windows
