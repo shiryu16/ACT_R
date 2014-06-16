@@ -173,7 +173,7 @@
 			(dolist (*blue_reward* blue-reward)
 				(dotimes (i participants-per-condition)
 					(reload) ;; to get global variables set properly 
-					(suppress-warnings(experiment TPR FPR :trials 138)))))))
+					(suppress-warnings(experiment TPR FPR :trials 127)))))))
 ))
 
 (define-model trust
