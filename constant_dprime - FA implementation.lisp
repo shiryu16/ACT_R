@@ -8,7 +8,7 @@
 (defvar *sound-played* 0)
 (defvar *switch-to-sound* 0)
 (defvar *switch-to-nosound* 0)
-(defvar *egs* 1)
+(defvar *egs* .5)
 (defvar *red_reward* 1)
 (defvar *blue_reward* 1)
 (defvar *TPR* nil)
@@ -164,9 +164,9 @@
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((egs-list '(.3 .4 .5))
-        (red-reward '(1 6 14 20))
-		(blue-reward '(-1 -6 -14 -20)))
+	(let ((egs-list '(.4))
+        (red-reward '(14))
+		(blue-reward '(-6 )))
 
 	(dolist (*egs* egs-list)
 		(dolist (*red_reward* red-reward)
@@ -178,15 +178,16 @@
 
 (define-model trust
 
-(sgp :show-focus t :esc t :ul t :ncnar t :ult nil)
-(sgp :v nil :trace-detail low)
-;(sgp :egs .5)
-(spp-fct (list 'box-is-red :reward *red_reward*))
-(spp-fct (list 'box-is-blue :reward *blue_reward*))
-(sgp-fct (list
-;            :alpha *alpha*
-            :egs *egs*))
-;           :ut *ut*)))
+(sgp :show-focus t :esc t :ul t :ncnar t :ult t)
+(sgp :v t :trace-detail low)
+(sgp :egs .5)
+
+;; This block of code is needed when running param-explore function. 
+;(spp-fct (list 'box-is-red :reward *red_reward*))
+;(spp-fct (list 'box-is-blue :reward *blue_reward*))
+;(sgp-fct (list
+;            :egs *egs*))
+
 
 ;seed for testing parameter space
 ;(sgp :seed (123456 0))
@@ -271,7 +272,6 @@
 
 )	
 
-
 ;wait for alarm - and move attention to button if something is heard
 (p heard-alarm
 	=goal>
@@ -295,8 +295,9 @@
 	+visual>
 		isa		move-attention
 		screen-pos	=visual-location
-		!eval! (set-action "WAIT")
+		!eval! (set-action "CUED")
 )
+(spp heard-alarm :u 2)
 
 (p heard-alarm-yet-ignore
 	=goal>
@@ -320,6 +321,7 @@
 	!eval! (set-action "IGNORE")
 	!eval! (setf *sound-played* 0)
 )
+
 
 ;move attention to the button even though no alarm has been heard
 (p	switch-with-no-sound
@@ -347,9 +349,9 @@
 		isa		move-attention
 		screen-pos	=visual-location
 	-temporal>
-	!eval! (set-action "SWITCH")
+	!eval! (set-action "UNCUED")
 )
-(spp switch-with-no-sound :u 0)
+
 
 ;there should be a production that competes with switching without sound which is to wait to hear the sound
  (p wait-for-alarm
@@ -440,7 +442,7 @@
 		screen-pos	=visual-location
 	!eval! (display-results "red" *action* *TPR* *FPR*)
 )
-;(spp box-is-red :reward 4)
+(spp box-is-red :reward 30)
 ;just switch back if it's blue
 (p box-is-blue
 	=goal>
@@ -460,7 +462,7 @@
 		screen-pos	=visual-location
 	!eval! (display-results "blue" *action* *TPR* *FPR*)
 )
-;(spp box-is-blue :reward -4)
+(spp box-is-blue :reward -6)
 
 (goal-focus goal)
 )
