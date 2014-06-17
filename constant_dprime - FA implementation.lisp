@@ -159,7 +159,7 @@
 (clear-all)
 
 (defun param-explore (TPR FPR participants-per-condition)
-	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Utility_Learning_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/UL_With_FA_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
 	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
