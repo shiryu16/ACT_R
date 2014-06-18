@@ -179,14 +179,14 @@
 (define-model trust
 
 (sgp :show-focus t :esc t :ul t :ncnar t :ult t)
-(sgp :v t :trace-detail low)
-(sgp :egs .5)
+(sgp :v nil :trace-detail low)
+'(sgp :egs .5)
 
 ;; This block of code is needed when running param-explore function. 
-;(spp-fct (list 'box-is-red :reward *red_reward*))
-;(spp-fct (list 'box-is-blue :reward *blue_reward*))
-;(sgp-fct (list
-;            :egs *egs*))
+(spp-fct (list 'box-is-red :reward *red_reward*))
+(spp-fct (list 'box-is-blue :reward *blue_reward*))
+(sgp-fct (list
+            :egs *egs*))
 
 
 ;seed for testing parameter space
