@@ -8,9 +8,9 @@
 (defvar *sound-played* 0)
 (defvar *switch-to-sound* 0)
 (defvar *switch-to-nosound* 0)
-(defvar *egs* .4)
+(defvar *egs* .5)
 (defvar *red_reward* 14)
-(defvar *blue_reward* nil)
+(defvar *blue_reward* -6)
 (defvar *TPR* nil)
 (defvar *FPR* nil)
 (defvar *action* nil)
@@ -18,8 +18,8 @@
 
 (defun create-windows ()
 ; ; ; ; make a window1
-	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible nil))
-	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500 :visible nil))
+	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible T))
+	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500 :visible T))
 	; draw 2 buttons one in the center with no action and one in the corner that switches to second window
 	(add-button-to-exp-window :window *drill-window* :action #'switch-to-cart-window)
 	 (add-text-to-exp-window :window *drill-window* :text "moving box" :x 250 :y 250)
@@ -56,14 +56,18 @@
 ;Call filler function when the spacebar is pressed
 (defmethod rpm-window-key-event-handler ((win rpm-window) key)
 	(setf *response* (string key))
-	(if (equal *response* " ") (filler)) ;if the space bar is pressed, the filler function is called
+	(if (equal *response* " ") (filler "space")) ;if the space bar is pressed, the filler function is called
 	;if i implement a points system this function should also either take away or reward extra points.
 )
 
 ;sets filler in the second window
-(defun filler ()
-		(when  (not(null *box*))  (remove-items-from-exp-window *box* :window *cart-window*))
-		(setf *box* (add-text-to-exp-window :window *cart-window*
+(defun filler (type)
+; the filler function goes off at the end of each trial. When it is called by the keyboard being pressed nothing different happens, however, when type is from timed it means that the model did not
+; respond to the trial - this may indicate a miss so we call the function. 
+	(if (equal type "timed") (new-miss)) 	
+		
+	(when  (not(null *box*))  (remove-items-from-exp-window *box* :window *cart-window*))
+	(setf *box* (add-text-to-exp-window :window *cart-window*
 							:text "box" :color "blue"
 							:x 250 :y 250))
 	
@@ -83,11 +87,11 @@
 									;(format t "sound played-")
 									)
 			((and(equal *trial* "non-crit") (< (act-r-random 100) FPR))
-									(new-tone-sound 1000 .5 )
+									(new-tone-sound 2000 .5 )
 									(setf *sound-played* 1)
 									;(format t "sound played-"))
 	))
-	;(format t "trial computed ~S ~%" *trial*)
+	
 *trial*	
 )
 ;this function set a new trial text on the second window, 
@@ -106,6 +110,15 @@
 				)
 			)
 	)
+	(format t "trial computed ~S ~%" *trial*)
+)
+
+; new miss will determine if the previous trial was a critical or a non-critical trial. filler would always be called before a new-trial. 
+; when the previous trial was a "critical" we should try to generate a new-word-event
+(defun new-miss ()
+	(format t "~% previous trial was ~S ... " *trial*)	
+	(if (equal *trial* "critical") (new-word-sound "miss") (format t "so no sound is generated"))
+	;
 )
 
 (defun reset-environment ()
@@ -132,8 +145,9 @@
 	(start-hand-at-mouse)
 	(set-cursor-position 100 100)
 
+; it might make sense to move the run-full-time commands into the functions filler and new-trial. 
 	(dotimes (i trials)
-		(filler)
+		(filler "timed")
 		(run-full-time (+ 6 (act-r-random 4))) ;run for 7-10 seconds
 		(new-trial TPR FPR) ;(proc-display) inside the function
 		(run-full-time (+ 7 (act-r-random 5))) ;run trial for 7-12 seconds
@@ -159,49 +173,34 @@
 (clear-all)
 
 (defun param-explore (TPR FPR participants-per-condition)
-	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/UL_With_FA_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Utility_Learning_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
 	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
-	(let ((egs-list '(.3 .4 .5 .6))
-        (red-reward '(10 12 14 15 16))
-		;(blue-reward '(-10 -8 -6 -4 -2))
-		)
+	(let ((egs-list '(.3 .4 .5))
+        (red-reward '(1 6 14 20))
+		(blue-reward '(-1 -6 -14 -20)))
 
 	(dolist (*egs* egs-list)
 		(dolist (*red_reward* red-reward)
-			;(dolist (*blue_reward* blue-reward)
+			(dolist (*blue_reward* blue-reward)
 				(dotimes (i participants-per-condition)
 					(reload) ;; to get global variables set properly 
-					(suppress-warnings(experiment TPR FPR :trials 150))
-				)
-			;)
-		)
-	)
-	)
+					(suppress-warnings(experiment TPR FPR :trials 127)))))))
 ))
-
-(defun run-param (participants)
-	(param-explore 91 15 participants)
-	(param-explore 85 10 participants)
-	(param-explore 75 5 participants)
-	(param-explore 67 3 participants)
-)
-
 
 (define-model trust
 
 (sgp :show-focus t :esc t :ul t :ncnar t :ult t)
-(sgp :v nil :trace-detail low)
+(sgp :v t :trace-detail low)
 ;(sgp :egs .5)
-
-;; This block of code is needed when running param-explore function. 
-(spp-fct (list 'box-is-red :reward *red_reward*))
+;(spp-fct (list 'box-is-red :reward *red_reward*))
 ;(spp-fct (list 'box-is-blue :reward *blue_reward*))
 (sgp-fct (list
+;            :alpha *alpha*
             :egs *egs*))
-
+;           :ut *ut*)))
 
 ;seed for testing parameter space
 ;(sgp :seed (123456 0))
@@ -286,6 +285,7 @@
 
 )	
 
+
 ;wait for alarm - and move attention to button if something is heard
 (p heard-alarm
 	=goal>
@@ -293,6 +293,7 @@
 		state	tracking
 	=aural-location>
 		isa      audio-event
+		kind	tone
     ?aural>
 		state    free
 	?visual>
@@ -309,37 +310,29 @@
 	+visual>
 		isa		move-attention
 		screen-pos	=visual-location
-		!eval! (set-action "CUED")
+		!eval! (set-action "WAIT")
 )
 
-(spp heard-alarm :u 2)
-
-
-(p heard-alarm-yet-ignore
+(p heard-miss
 	=goal>
 		isa 	goal
 		state	tracking
 	=aural-location>
 		isa      audio-event
+		kind	word
     ?aural>
 		state    free
 	?visual>
 		state	free
-	=visual-location>
-		isa		visual-location
-		kind	oval
 	==>
 	=goal>
-	=visual-location>
-	-aural-location>
-	+temporal>
-		isa		time
-	!eval! (set-action "IGNORE")
-	!eval! (display-results "unk" *action* *TPR* *FPR*)
+	+aural>
+		isa		sound
+		event	=aural-location
 )
-
-
+(spp heard-miss :reward 0)
 ;move attention to the button even though no alarm has been heard
+
 (p	switch-with-no-sound
 	=goal>
 		isa 	goal
@@ -365,9 +358,9 @@
 		isa		move-attention
 		screen-pos	=visual-location
 	-temporal>
-	!eval! (set-action "UNCUED")
+	!eval! (set-action "SWITCH")
 )
-
+(spp switch-with-no-sound :u 0)
 
 ;there should be a production that competes with switching without sound which is to wait to hear the sound
  (p wait-for-alarm
@@ -395,7 +388,6 @@
 	+temporal>
 		isa		time
 )
-
 (spp wait-for-alarm :u 2)
 ;(spp wait-for-alarm :reward 1)
 
@@ -459,7 +451,7 @@
 		screen-pos	=visual-location
 	!eval! (display-results "red" *action* *TPR* *FPR*)
 )
-;(spp box-is-red :reward 14)
+(spp box-is-red :reward 14)
 ;just switch back if it's blue
 (p box-is-blue
 	=goal>
@@ -479,7 +471,7 @@
 		screen-pos	=visual-location
 	!eval! (display-results "blue" *action* *TPR* *FPR*)
 )
-;(spp box-is-blue :reward -6)
+(spp box-is-blue :reward -4)
 
 (goal-focus goal)
 )
