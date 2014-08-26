@@ -18,8 +18,8 @@
 
 (defun create-windows ()
 ; ; ; ; make a window1
-	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible T))
-	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500 :visible T))
+	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible nil))
+	(setf *cart-window* (open-exp-window "Cart" :width 500 :height 500 :visible nil))
 	; draw 2 buttons one in the center with no action and one in the corner that switches to second window
 	(add-button-to-exp-window :window *drill-window* :action #'switch-to-cart-window)
 	 (add-text-to-exp-window :window *drill-window* :text "moving box" :x 250 :y 250)
@@ -90,7 +90,8 @@
 									(new-tone-sound 2000 .5 )
 									(setf *sound-played* 1)
 									;(format t "sound played-"))
-	))
+									)
+	)
 	
 *trial*	
 )
@@ -110,14 +111,14 @@
 				)
 			)
 	)
-	(format t "trial computed ~S ~%" *trial*)
+	; (format t "trial computed ~S ~%" *trial*)
 )
 
 ; new miss will determine if the previous trial was a critical or a non-critical trial. filler would always be called before a new-trial. 
 ; when the previous trial was a "critical" we should try to generate a new-word-event
 (defun new-miss ()
-	(format t "~% previous trial was ~S ... " *trial*)	
-	(if (equal *trial* "critical") (new-word-sound "miss") (format t "so no sound is generated"))
+	;(format t "~% previous trial was ~S ... " *trial*)	
+	(if (equal *trial* "critical") (new-word-sound "miss"))  ;(format t "so no sound is generated"))
 	;
 )
 
@@ -173,7 +174,7 @@
 (clear-all)
 
 (defun param-explore (TPR FPR participants-per-condition)
-	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/Utility_Learning_byBlock.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/UL_Misses0_red_blue_egs.csv" :direction :output :if-exists :append :if-does-not-exist :create)
 	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
 	;and named as the output file at the specified location
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
@@ -190,13 +191,20 @@
 					(suppress-warnings(experiment TPR FPR :trials 127)))))))
 ))
 
+(defun do-explore (ppt-per-cond)
+	(param-explore 91 15 ppt-per-cond)
+	(param-explore 85 10 ppt-per-cond)
+	(param-explore 75 5 ppt-per-cond)
+	(param-explore 65 3 ppt-per-cond)
+)
+
 (define-model trust
 
 (sgp :show-focus t :esc t :ul t :ncnar t :ult t)
-(sgp :v t :trace-detail low)
+(sgp :v nil :trace-detail low)
 ;(sgp :egs .5)
-;(spp-fct (list 'box-is-red :reward *red_reward*))
-;(spp-fct (list 'box-is-blue :reward *blue_reward*))
+(spp-fct (list 'box-is-red :reward *red_reward*))
+(spp-fct (list 'box-is-blue :reward *blue_reward*))
 (sgp-fct (list
 ;            :alpha *alpha*
             :egs *egs*))
@@ -329,6 +337,7 @@
 	+aural>
 		isa		sound
 		event	=aural-location
+	!eval! (display-results "noSwitch-0" "MISS" *TPR* *FPR* )
 )
 (spp heard-miss :reward 0)
 ;move attention to the button even though no alarm has been heard
@@ -451,7 +460,7 @@
 		screen-pos	=visual-location
 	!eval! (display-results "red" *action* *TPR* *FPR*)
 )
-(spp box-is-red :reward 14)
+;(spp box-is-red :reward 14)
 ;just switch back if it's blue
 (p box-is-blue
 	=goal>
@@ -471,7 +480,7 @@
 		screen-pos	=visual-location
 	!eval! (display-results "blue" *action* *TPR* *FPR*)
 )
-(spp box-is-blue :reward -4)
+;(spp box-is-blue :reward -4)
 
 (goal-focus goal)
 )
