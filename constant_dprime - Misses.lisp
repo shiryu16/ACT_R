@@ -16,6 +16,8 @@
 (defvar *action* nil)
 
 
+
+;; This function generates the two windows that the model interacts with. 
 (defun create-windows ()
 ; ; ; ; make a window1
 	(setf *drill-window* (open-exp-window "Drill"	:width 500 :height 500 :visible nil))
@@ -30,8 +32,10 @@
 	(install-device *drill-window*)
 	(proc-display)
 )
-; ; ;this function selects which window the model should be interacting with
-; ; ;it is used by the corner buttons
+
+
+;;;this function selects which window the model should be interacting with
+;;;it is used by the corner buttons
 (defun switch-to-cart-window (button)
 	(declare (ignore button))
 	(select-exp-window *cart-window*)
@@ -45,6 +49,7 @@
 	)
 )
 
+;;switches back to the drill tracking window
 (defun switch-to-drill-window (button)
 	(declare (ignore button))
 	(setf *sound-played* 0)
@@ -62,7 +67,7 @@
 
 ;sets filler in the second window
 (defun filler (type)
-; the filler function goes off at the end of each trial. When it is called by the keyboard being pressed nothing different happens, however, when type is from timed it means that the model did not
+; the filler function goes off at the end of each trial. When it is called by the keyboard being pressed nothing different happens, however, when type is "timed: it means that the model did not
 ; respond to the trial - this may indicate a miss so we call the function. 
 	(if (equal type "timed") (new-miss)) 	
 		
@@ -76,7 +81,7 @@
 	;(format t "filler ~S ~%" *trial*) ;testing string to make sure the filler runs and what the trial variable is at the time. 
 )
 
-;decision on trial type
+;defines trial type (critical vs non-critical)
 (defun trial-type (TPR FPR)
 	;critical or not
 	(if (> (act-r-random 100) 50) (setf *trial* "non-crit") (setf *trial* "critical"))
@@ -95,7 +100,7 @@
 	
 *trial*	
 )
-;this function set a new trial text on the second window, 
+;this function sets a new trial text on the second window, 
 ;the call to trial-type plays the sound and decides the trial type
 (defun new-trial (TPR FPR)
 	(when  (not(null *box*))  (remove-items-from-exp-window *box* :window *cart-window*))
@@ -122,6 +127,7 @@
 	;
 )
 
+;resets the environment variables to be used in between model runs. 
 (defun reset-environment ()
 (setf *trial* nil)
 (setf *drill-window* nil)
@@ -151,7 +157,7 @@
 		(filler "timed")
 		(run-full-time (+ 6 (act-r-random 4))) ;run for 7-10 seconds
 		(new-trial TPR FPR) ;(proc-display) inside the function
-		(run-full-time (+ 7 (act-r-random 5))) ;run trial for 7-12 seconds
+		(run-full-time (+ 7 (act-r-random 5))) ;run trial for 8-12 seconds
 	)
 	;(display-results trials FPR TPR)	
 )
@@ -162,21 +168,29 @@
 	;(format t "Critical Trials: ~S ~%" *number-of-CT*)
 	;(format t "Switches after alarm: ~S ~%" *switch-to-sound*)
 	;(format t "Switches with NO alarm: ~S ~%" *switch-to-nosound*)
-	;this next function writes so that the variables are comma separated and go into a preexisting csv with labeled header row
+	
+	
+	;this next section writes so that the variables are comma separated and go into a preexisting csv with labeled header row
 	;(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S~%" trials *number-of-CT* *switch-to-sound* *switch-to-nosound* TPR FPR *egs* *red_reward* *blue_reward*)
 	(format t "~S,~S,~S,~S,~S,~S,~S,~S,~S,~S~%" outcome action TPR FPR *egs* *red_reward* *blue_reward* (mp-time) *switch-to-sound* *switch-to-nosound* )
 )
 
+;act-r can only call functions in the production, not set variable values, so this function just sets the variable value that is appropriate based on the production that was fired. 
 (defun set-action (action)
 	(setf *action* action)
 )
 
 (clear-all)
 
+;this production is used to explore the parameter space. 
+;the parameter space to be explored is determined by the lists in the let statement. 
+;the last line also states how many trials to run per participant. This has historically changed with each iteration of the experiement and sometimes has been different between conditions. 
 (defun param-explore (TPR FPR participants-per-condition)
-	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/UL_Misses0_red_blue_egs.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+
 	;instead of the following line it is easier in order to chain these to just create a csv file manually with the header rows  
 	;and named as the output file at the specified location
+	(with-open-file (*standard-output* "C:/Users/Shiryum/Documents/GitHub/ACT_R/UL_Misses0_red_blue_egs.csv" :direction :output :if-exists :append :if-does-not-exist :create)
+	
 	;(format t "Trials,CT,Switches_to_sound,switch-to-no-sound,TPR,FPR,EGS,RED_REWARD")
 	
 	(let ((egs-list '(.3 .4 .5))
@@ -191,6 +205,7 @@
 					(suppress-warnings(experiment TPR FPR :trials 127)))))))
 ))
 
+;this is for doing the exploration of all the conditions with one function.
 (defun do-explore (ppt-per-cond)
 	(param-explore 91 15 ppt-per-cond)
 	(param-explore 85 10 ppt-per-cond)
